@@ -1,0 +1,9 @@
+fastapi>=0.68.0
+uvicorn>=0.15.0
+ollama>=0.1.5
+langchain-community>=0.0.29
+wikipedia>=1.4.0
+faiss-cpu>=1.7.4
+langchain-core>=0.1.0
+langchain-ollama>=0.1.0  # New required package
+python-dotenv>=1.0.0
