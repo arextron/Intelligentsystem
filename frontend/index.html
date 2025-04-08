@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Chatbot Interface</title>
     <style>
         body {
@@ -42,9 +43,17 @@
             cursor: pointer;
             font-size: 20px;
             color: #ccc;
+            transition: color 0.2s;
+        }
+        .star:hover {
+            color: gold;
         }
         .star.selected {
             color: gold;
+        }
+        .rating-confirmation {
+            color: green;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -78,6 +87,9 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'rating';
             wrapper.innerHTML = `Rate this response: `;
+            const confirmation = document.createElement('span');
+            confirmation.className = 'rating-confirmation';
+            wrapper.appendChild(confirmation);
     
             for (let i = 1; i <= 5; i++) {
                 const star = document.createElement('span');
@@ -85,6 +97,15 @@
                 star.classList.add('star');
                 star.dataset.value = i;
                 star.onclick = async () => {
+                    const stars = wrapper.querySelectorAll('.star');
+                    stars.forEach((s, index) => {
+                        if (index < i) {
+                            s.classList.add('selected');
+                        } else {
+                            s.classList.remove('selected');
+                        }
+                    });
+                    
                     try {
                         await fetch('http://localhost:8000/feedback', {
                             method: 'POST',
@@ -98,13 +119,13 @@
                                 rating: i
                             })
                         });
-                        wrapper.innerHTML = `✅ Thanks for rating ${i} star${i > 1 ? 's' : ''}`;
+                        confirmation.textContent = `✅`;
                     } catch (err) {
                         console.error("Rating failed:", err);
-                        wrapper.innerHTML = "⚠️ Error sending feedback.";
+                        confirmation.textContent = "⚠️ Error sending feedback.";
                     }
                 };
-                wrapper.appendChild(star);
+                wrapper.insertBefore(star, confirmation);
             }
     
             chatbox.appendChild(wrapper);
