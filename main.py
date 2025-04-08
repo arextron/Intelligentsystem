@@ -46,8 +46,8 @@ class Feedback(BaseModel):
     rating: int  # 1 to 5
 
 # === Intent Detection ===
-AI_KEYWORDS = {"ai", "ml", "machine learning", "deep learning", "dl", "nlp", "chatbot", "transformer","natural language processing", "artificial intelligence", "model", "algorithm", "data", "training", "inference","research", "paper", "study", "experiment", "results", "evaluation", "accuracy", "performance", "benchmark", "dataset", "feature", "label", "training set", "test set", "validation set", "hyperparameter", "tuning"}
-ADMISSION_KEYWORDS = {"admission", "concordia", "computer science", "cs", "apply", "gpa", "deadline"," requirements", "tuition", "program", "application", "acceptance", "status", "documents", "transcripts", "english proficiency", "ielts", "toefl", "gre", "sat", "act", "interview", "offer letter"," acceptance letter", "deferral", "transfer", "international student", "visa", "scholarship", "financial aid", "tuition fee", "cost of living", "housing", "accommodation", "campus life", "student services", "orientation", "registration", "enrollment", "course load", "academic calendar"},
+AI_KEYWORDS = {"ai", "ml", "machine learning", "deep learning", "dl", "nlp", "chatbot", "transformer"}
+ADMISSION_KEYWORDS = {"admission", "concordia", "computer science", "cs", "apply", "gpa", "deadline"}
 
 def get_intent_agent(user_input: str):
     tokens = set(user_input.lower().split())
@@ -57,7 +57,7 @@ def get_intent_agent(user_input: str):
         return "admission"
     return "general"
 
-def is_followup(current_query: str, last_query: str, threshold: float = 0.2) -> bool:
+def is_followup(current_query: str, last_query: str, threshold: float = 0.4) -> bool:
     if not last_query:
         return False
     ratio = difflib.SequenceMatcher(None, current_query.lower(), last_query.lower()).ratio()
@@ -68,18 +68,25 @@ def is_followup(current_query: str, last_query: str, threshold: float = 0.2) -> 
 async def chat(request: ChatRequest):
     try:
         user_id = request.user_id
-        user_input = request.user_input
-        # Greet/bye shortcut
+        user_input = request.user_input.strip().lower()
+
+        # Handle greetings and farewells
         greetings = {"hi", "hello", "hey"}
         farewells = {"bye", "goodbye", "see you"}
-        lowered = user_input.strip().lower()
 
-        if lowered in greetings:
-            return {"response": "Hi there! 👋", "agent": "general", "contextual": False}
+        if user_input in greetings:
+            return {
+                "response": "Hi there! 👋 How can I assist you today?",
+                "agent": "general",
+                "contextual": False
+            }
 
-        if lowered in farewells:
-            return {"response": "Goodbye! 👋", "agent": "general", "contextual": False}
-
+        if user_input in farewells:
+            return {
+                "response": "Goodbye! 👋 Have a great day!",
+                "agent": "general",
+                "contextual": False
+            }
 
         # Context detection
         history = vector_store.memory_log.get(user_id, [])

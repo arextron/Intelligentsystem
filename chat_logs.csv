@@ -135,3 +135,17 @@ Please note that specific admission requirements may vary depending on the progr
 What's your current academic situation, and which Computer Science program at Concordia are you interested in?",admission,True,5
 2025-04-08 14:37:03.586469,user_7doa2n3fk,bye,Goodbye! 👋,general,False,4
 2025-04-08 14:37:06.820267,user_7doa2n3fk,goodbye,Goodbye! 👋,general,False,5
+2025-04-08 16:03:29.507699,user_93xnr4spf,tell me more about ai?,"You're interested in learning more about AI! I'd be happy to share some additional insights.
+
+Since you already know about the breast cancer detection system, let's explore another interesting application of AI. Did you know that AI-powered chatbots are being used in customer service to provide personalized support? These chatbots can analyze user behavior and preferences to offer tailored responses, making customer interactions more efficient and effective.
+
+For instance, companies like IBM Watson and Microsoft Bot Framework are developing conversational AI platforms that can understand natural language processing (NLP) and respond accordingly. This technology is being used in various industries, such as healthcare, finance, and e-commerce, to improve customer experience and reduce the need for human intervention.
+
+What do you think about the potential of AI-powered chatbots in customer service?",general,True,2
+2025-04-08 16:03:30.370742,user_93xnr4spf,tell me something intersting about ai?,"I'd be happy to share something interesting about AI!
+
+Did you know that AI has been used in the field of medicine to develop a system that can detect breast cancer from mammography images with an accuracy rate of over 99%? This technology uses deep learning algorithms to identify tumors and abnormalities, allowing doctors to make more accurate diagnoses and potentially improving patient outcomes.
+
+This is just one example of how AI is being used to transform healthcare and improve people's lives. There are many other exciting applications of AI in fields such as finance, education, and customer service, among others!
+
+What do you think about the potential of AI?",general,True,2
