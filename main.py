@@ -1,5 +1,4 @@
-# main.py
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from agents.general_agent import GeneralAgent
 from agents.admission_agent import AdmissionAgent
 from agents.ai_agent import AIAgent
@@ -7,17 +6,22 @@ from memory.vector_store import VectorStore
 from utils.external_api import WikipediaAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException  
+from datetime import datetime
+import difflib
+import csv
+import os
+from typing import Optional
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins (change in production)
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Initialize components
+
+# === Initialization ===
 try:
     vector_store = VectorStore()
     wikipedia_api = WikipediaAPI()
@@ -28,27 +32,100 @@ except Exception as e:
     print(f"Initialization error: {e}")
     raise
 
-# Define request model
+# === Models ===
 class ChatRequest(BaseModel):
     user_input: str
     user_id: str
 
+class Feedback(BaseModel):
+    user_id: str
+    input: str
+    response: str
+    agent: str
+    contextual: bool
+    rating: int  # 1 to 5
+
+# === Intent Detection ===
+AI_KEYWORDS = {"ai", "ml", "machine learning", "deep learning", "dl", "nlp", "chatbot", "transformer","natural language processing", "artificial intelligence", "model", "algorithm", "data", "training", "inference","research", "paper", "study", "experiment", "results", "evaluation", "accuracy", "performance", "benchmark", "dataset", "feature", "label", "training set", "test set", "validation set", "hyperparameter", "tuning"}
+ADMISSION_KEYWORDS = {"admission", "concordia", "computer science", "cs", "apply", "gpa", "deadline"," requirements", "tuition", "program", "application", "acceptance", "status", "documents", "transcripts", "english proficiency", "ielts", "toefl", "gre", "sat", "act", "interview", "offer letter"," acceptance letter", "deferral", "transfer", "international student", "visa", "scholarship", "financial aid", "tuition fee", "cost of living", "housing", "accommodation", "campus life", "student services", "orientation", "registration", "enrollment", "course load", "academic calendar"},
+
+def get_intent_agent(user_input: str):
+    tokens = set(user_input.lower().split())
+    if tokens & AI_KEYWORDS:
+        return "ai"
+    if tokens & ADMISSION_KEYWORDS:
+        return "admission"
+    return "general"
+
+def is_followup(current_query: str, last_query: str, threshold: float = 0.2) -> bool:
+    if not last_query:
+        return False
+    ratio = difflib.SequenceMatcher(None, current_query.lower(), last_query.lower()).ratio()
+    return ratio > threshold or any(word in current_query.lower() for word in {"what", "and", "also", "about", "more", "that"})
+
+# === Chat Endpoint ===
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
-        agent_type = "general"  # Default
-        if "admission" in request.user_input.lower():
-            response = admission_agent.handle_query(request.user_input, request.user_id)
-            agent_type = "admission"
-        elif "ai" in request.user_input.lower():
-            response = ai_agent.handle_query(request.user_input, request.user_id)
-            agent_type = "ai"
+        user_id = request.user_id
+        user_input = request.user_input
+        # Greet/bye shortcut
+        greetings = {"hi", "hello", "hey"}
+        farewells = {"bye", "goodbye", "see you"}
+        lowered = user_input.strip().lower()
+
+        if lowered in greetings:
+            return {"response": "Hi there! 👋", "agent": "general", "contextual": False}
+
+        if lowered in farewells:
+            return {"response": "Goodbye! 👋", "agent": "general", "contextual": False}
+
+
+        # Context detection
+        history = vector_store.memory_log.get(user_id, [])
+        last_query = ""
+        for h in reversed(history):
+            if h["role"] == "user":
+                last_query = h["content"]
+                break
+
+        is_contextual = is_followup(user_input, last_query)
+        agent_type = get_intent_agent(user_input)
+
+        # Route to agent
+        if agent_type == "admission":
+            response = admission_agent.handle_query(user_input, user_id)
+        elif agent_type == "ai":
+            response = ai_agent.handle_query(user_input, user_id)
         else:
-            response = general_agent.handle_query(request.user_input, request.user_id)
-        
+            response = general_agent.handle_query(user_input, user_id)
+
         return {
             "response": response,
-            "agent": agent_type  # Add agent info
+            "agent": agent_type,
+            "contextual": is_contextual,
+            "feedback_prompt": "How would you rate this response? (1–5)"
         }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# === Feedback Endpoint ===
+@app.post("/feedback")
+async def collect_feedback(feedback: Feedback):
+    log_file = "chat_logs.csv"
+    is_new_file = not os.path.exists(log_file)
+    with open(log_file, "a", newline="") as f:
+        writer = csv.writer(f)
+        if is_new_file:
+            writer.writerow(["timestamp", "user_id", "input", "response", "agent", "contextual", "rating"])
+        writer.writerow([
+            datetime.now(),
+            feedback.user_id,
+            feedback.input,
+            feedback.response,
+            feedback.agent,
+            feedback.contextual,
+            feedback.rating
+        ])
+    return {"status": "Feedback logged"}

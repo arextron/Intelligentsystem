@@ -34,6 +34,18 @@
             color: #666;
             font-style: italic;
         }
+        .rating {
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        .star {
+            cursor: pointer;
+            font-size: 20px;
+            color: #ccc;
+        }
+        .star.selected {
+            color: gold;
+        }
     </style>
 </head>
 <body>
@@ -43,59 +55,88 @@
     <button onclick="sendMessage()">Send</button>
 
     <script>
-        // Generate a random user ID for the session
         const userId = "user_" + Math.random().toString(36).substr(2, 9);
-        
+        let lastBotResponse = null;
+    
         function addMessage(sender, message, agent = null) {
             const chatbox = document.getElementById('chatbox');
             const msgDiv = document.createElement('div');
             msgDiv.className = sender;
-            
+    
             let msgContent = `<strong>${sender}:</strong> ${message}`;
             if (agent && sender === 'bot') {
                 msgContent += `<span class="agent-tag"> (${agent} agent)</span>`;
             }
-            
+    
             msgDiv.innerHTML = msgContent;
             chatbox.appendChild(msgDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
-
+    
+        function addRatingWidget(data, userInput) {
+            const chatbox = document.getElementById('chatbox');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'rating';
+            wrapper.innerHTML = `Rate this response: `;
+    
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.innerHTML = '★';
+                star.classList.add('star');
+                star.dataset.value = i;
+                star.onclick = async () => {
+                    try {
+                        await fetch('http://localhost:8000/feedback', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                user_id: userId,
+                                input: userInput,
+                                response: data.response,
+                                agent: data.agent,
+                                contextual: data.contextual,
+                                rating: i
+                            })
+                        });
+                        wrapper.innerHTML = `✅ Thanks for rating ${i} star${i > 1 ? 's' : ''}`;
+                    } catch (err) {
+                        console.error("Rating failed:", err);
+                        wrapper.innerHTML = "⚠️ Error sending feedback.";
+                    }
+                };
+                wrapper.appendChild(star);
+            }
+    
+            chatbox.appendChild(wrapper);
+        }
+    
         async function sendMessage() {
-            const userInput = document.getElementById('userInput');
-            const message = userInput.value.trim();
-            
+            const userInputEl = document.getElementById('userInput');
+            const message = userInputEl.value.trim();
             if (!message) return;
-            
+    
             addMessage('user', message);
-            userInput.value = '';
-            
+            userInputEl.value = '';
+    
             try {
                 const response = await fetch('http://localhost:8000/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         user_input: message,
                         user_id: userId
                     })
                 });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
+    
                 const data = await response.json();
                 addMessage('bot', data.response, data.agent);
-                
-            } catch (error) {
-                console.error('Error:', error);
-                addMessage('bot', "Sorry, I couldn't process your request. Please try again.");
+                addRatingWidget(data, message);
+            } catch (err) {
+                console.error(err);
+                addMessage('bot', '⚠️ Sorry, there was an error processing your request.');
             }
         }
-
-        // Allow sending message by pressing Enter
+    
         document.getElementById('userInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
