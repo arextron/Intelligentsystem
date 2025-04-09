@@ -1,0 +1,154 @@
+{
+    "questions": [
+      {
+        "question": "What is artificial intelligence?",
+        "expected_answer": "Artificial intelligence is the simulation of human intelligence processes by machines, especially computer systems.",
+        "category": "ai"
+      },
+      {
+        "question": "Explain machine learning",
+        "expected_answer": "Machine learning is a subset of AI that enables systems to learn and improve from experience without being explicitly programmed.",
+        "category": "ai"
+      },
+      {
+        "question": "What are neural networks?",
+        "expected_answer": "Neural networks are computing systems inspired by biological neural networks that learn to perform tasks by considering examples.",
+        "category": "ai"
+      },
+      {
+        "question": "What are the admission requirements for Computer Science at Concordia?",
+        "expected_answer": "The admission requirements typically include a high school diploma with strong grades in math and science, along with meeting the university's general admission criteria.",
+        "category": "admission"
+      },
+      {
+        "question": "How do I apply to Concordia University?",
+        "expected_answer": "You can apply through Concordia's online application system by submitting your academic transcripts, required documents, and paying the application fee.",
+        "category": "admission"
+      },
+      {
+        "question": "What is the application deadline for fall admission?",
+        "expected_answer": "The deadline for fall admission to most programs is typically March 1st, but you should check the official Concordia website for program-specific deadlines.",
+        "category": "admission"
+      },
+      {
+        "question": "What GPA do I need for Computer Science admission?",
+        "expected_answer": "The competitive GPA varies each year, but generally a minimum of 3.0/4.3 or equivalent is recommended for consideration in Computer Science programs.",
+        "category": "admission"
+      },
+      {
+        "question": "Do I need to submit English proficiency test scores?",
+        "expected_answer": "Yes, if your primary language isn't English or you haven't completed at least 3 years of study in an English-medium institution, you'll need to submit TOEFL/IELTS scores.",
+        "category": "admission"
+      },
+      {
+        "question": "What is the difference between AI and ML?",
+        "expected_answer": "AI is the broader concept of machines performing tasks intelligently, while ML is a specific approach to achieve AI through learning from data.",
+        "category": "ai"
+      },
+      {
+        "question": "What is a chatbot?",
+        "expected_answer": "A chatbot is an AI-powered software designed to simulate conversation with human users through text or voice interactions.",
+        "category": "ai"
+      },
+      {
+        "question": "What is supervised learning?",
+        "expected_answer": "Supervised learning is a machine learning approach where models are trained using labeled input-output pairs.",
+        "category": "ai"
+      },
+      {
+        "question": "What is unsupervised learning?",
+        "expected_answer": "Unsupervised learning is a machine learning technique where models find patterns in data without pre-existing labels.",
+        "category": "ai"
+      },
+      {
+        "question": "What is transfer learning?",
+        "expected_answer": "Transfer learning is a machine learning method where knowledge gained from solving one problem is applied to a different but related problem.",
+        "category": "ai"
+      },
+      {
+        "question": "What are transformers in AI?",
+        "expected_answer": "Transformers are a type of neural network architecture that uses self-attention mechanisms to process sequential data efficiently.",
+        "category": "ai"
+      },
+      {
+        "question": "What is the Turing test?",
+        "expected_answer": "The Turing test evaluates a machine's ability to exhibit intelligent behavior indistinguishable from a human.",
+        "category": "ai"
+      },
+      {
+        "question": "Tell me about Concordia University",
+        "expected_answer": "Concordia University is a comprehensive public university in Montreal, Canada, known for its diverse programs and research opportunities.",
+        "category": "general"
+      },
+      {
+        "question": "What's the weather like today?",
+        "expected_answer": "I don't have access to current weather information, but you can check a weather service or app for the latest forecast.",
+        "category": "general"
+      },
+      {
+        "question": "What time is it?",
+        "expected_answer": "I don't have access to real-time clock information. Please check your device's clock.",
+        "category": "general"
+      },
+      {
+        "question": "What is the capital of Canada?",
+        "expected_answer": "The capital of Canada is Ottawa.",
+        "category": "general"
+      },
+      {
+        "question": "Who is the current prime minister of Canada?",
+        "expected_answer": "As of my knowledge cutoff, Justin Trudeau is the Prime Minister of Canada, but this may have changed.",
+        "category": "general"
+      },
+      {
+        "question": "What are some tourist attractions in Montreal?",
+        "expected_answer": "Popular attractions include Old Montreal, Mount Royal, the Biodome, and Notre-Dame Basilica.",
+        "category": "general"
+      },
+      {
+        "question": "How do I get to Concordia University?",
+        "expected_answer": "Concordia has two campuses in downtown Montreal accessible by public transit, car, or walking.",
+        "category": "general"
+      },
+      {
+        "question": "What is the population of Montreal?",
+        "expected_answer": "Montreal has a population of approximately 1.7 million people in the city proper.",
+        "category": "general"
+      },
+      {
+        "question": "What languages are spoken in Montreal?",
+        "expected_answer": "Montreal is bilingual with French and English as the main languages, though many other languages are spoken.",
+        "category": "general"
+      },
+      {
+        "question": "What is poutine?",
+        "expected_answer": "Poutine is a Canadian dish of french fries topped with cheese curds and gravy.",
+        "category": "general"
+      },
+      {
+        "question": "What documents are required for international student admission?",
+        "expected_answer": "International students typically need academic transcripts, proof of English proficiency, passport copy, and sometimes a study permit or visa documentation.",
+        "category": "admission"
+      },
+      {
+        "question": "Is there an application fee for Concordia?",
+        "expected_answer": "Yes, there is a non-refundable application fee (currently around $100 CAD for undergraduate applications, but check the website for current amounts).",
+        "category": "admission"
+      },
+      {
+        "question": "Can I transfer credits from another university?",
+        "expected_answer": "Yes, Concordia accepts transfer credits from recognized institutions, but they need to be evaluated for equivalency after you apply.",
+        "category": "admission"
+      },
+      {
+        "question": "What is the difference between undergraduate and graduate admission requirements?",
+        "expected_answer": "Undergraduate admissions focus on high school credentials, while graduate admissions require a bachelor's degree, letters of recommendation, and often a statement of purpose.",
+        "category": "admission"
+      },
+      {
+        "question": "How long does the admission decision take?",
+        "expected_answer": "Admission decisions typically take 4-8 weeks after all required documents are submitted, but this can vary by program and applicant volume.",
+        "category": "admission"
+      }
+    ]
+  }
