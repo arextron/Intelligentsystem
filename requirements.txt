@@ -1,9 +1,27 @@
 fastapi>=0.68.0
 uvicorn>=0.15.0
+
+# LLM + LangChain
 ollama>=0.1.5
-langchain-community>=0.0.29
-wikipedia>=1.4.0
-faiss-cpu>=1.7.4
 langchain-core>=0.1.0
-langchain-ollama>=0.1.0  # New required package
+langchain-community>=0.0.29
+langchain-ollama>=0.1.0
+
+# Wikipedia API
+wikipedia>=1.4.0
+
+# Vector store
+faiss-cpu>=1.7.4
+
+# Environment configuration
 python-dotenv>=1.0.0
+
+# Dashboard and data analysis
+streamlit>=1.30.0
+pandas>=1.5.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Machine learning (reward model)
+scikit-learn>=1.0
+joblib>=1.2.0

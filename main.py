@@ -102,11 +102,11 @@ async def chat(request: ChatRequest):
         agent_type = get_intent_agent(user_input)
 
         if agent_type == "admission":
-            candidates = admission_agent.generate_candidates(user_input, user_id, n=2)
+            candidates = admission_agent.generate_candidates(user_input, user_id, n=1)
         elif agent_type == "ai":
-            candidates = ai_agent.generate_candidates(user_input, user_id, n=2)
+            candidates = ai_agent.generate_candidates(user_input, user_id, n=1)
         else:
-            candidates = general_agent.generate_candidates(user_input, user_id, n=2)
+            candidates = general_agent.generate_candidates(user_input, user_id, n=1)
 
         if hasattr(reward_model, 'model'):
             response = max(candidates, key=lambda r: reward_model.predict(user_input, r))
