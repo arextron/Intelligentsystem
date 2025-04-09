@@ -1,0 +1,11 @@
+{
+  "total_questions": 30,
+  "correct_answers": 18,
+  "category_accuracy": {
+    "ai": 1.0,
+    "admission": 0.3333333333333333,
+    "general": 0.5
+  },
+  "overall_accuracy": 0.6,
+  "average_similarity": 0.5761233270168304
+}
