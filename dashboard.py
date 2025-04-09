@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime
+import json
 
 st.set_page_config(page_title="Chatbot Performance Dashboard", layout="wide")
 
@@ -23,26 +24,51 @@ def load_feedback():
     except:
         return pd.DataFrame()
 
+@st.cache_data
+def load_evaluation_results():
+    try:
+        with open("evaluation_results.json", "r") as f:
+            data = json.load(f)
+            return data.get("overall_accuracy", 0) * 100 
+    except:
+        return 0
+
 chat_df = load_chat_logs()
+our_bot_accuracy = load_evaluation_results()
 
 # === Metrics Calculation ===
 st.subheader("📊 Key Performance Metrics")
 if not chat_df.empty:
     total_logs = len(chat_df)
     avg_rating = chat_df["rating"].mean()
-    # Convert 'contextual' to numeric (1/0) if it's in string or bool form
     chat_df["contextual"] = chat_df["contextual"].astype(str).str.lower().map({"true": 1, "false": 0, "1": 1, "0": 0})
 
     context_rate = chat_df["contextual"].mean() * 100
-
     high_rating_accuracy = (chat_df["rating"] >= 4).mean() * 100
 
     col1, col2, col3 = st.columns(3)
     col1.metric("📈 Avg Rating (Satisfaction)", f"{avg_rating:.2f} / 5")
     col2.metric("🔄 Contextual Coherence", f"{context_rate:.2f}%")
-    col3.metric("✅ Approx Accuracy (≥4★)", f"{high_rating_accuracy:.2f}%")
+    col3.metric("✅ Approx Accuracy", f"{our_bot_accuracy:.2f}%")
 else:
     st.info("No chat data found to compute metrics.")
+
+# === Performance Benchmark ===
+st.subheader("📊 Performance Benchmark")
+benchmark_data = pd.DataFrame({
+    "Model": ["ChatGPT", "Our Bot"],
+    "Accuracy (%)": [88.7, our_bot_accuracy]
+})
+
+st.bar_chart(
+    benchmark_data.set_index("Model"),
+    color="#1C83E1"
+)
+
+col1, col2 = st.columns(2)
+col1.metric("ChatGPT Benchmark Accuracy", "88.7%")
+col2.metric("Our Bot Accuracy", f"{our_bot_accuracy:.1f}%")
+
 
 # === Chat Summary ===
 st.subheader("📈 Chat Summary")
