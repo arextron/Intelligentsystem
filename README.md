@@ -151,7 +151,7 @@ streamlit run dashboard.py
 ### 5. Train or Reuse Reward Model
 If training for the first time:
 ```bash
-python train_reward_model.py
+python utils/reward_model.py
 ```
 Make sure it creates `reward_model_sklearn.pkl` and places it in the root or correct `utils` path.
 
