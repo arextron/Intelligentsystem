@@ -141,7 +141,8 @@ Open a terminal and run:
 ```bash
 python -m http.server 9000
 ```
-Then visit: [http://localhost:9000/index.html](http://localhost:9000/index.html)
+Then visit: [http://localhost:9000/frontend.html](http://localhost:9000/frontend.html
+)
 
 ### 4. Launch Analytics Dashboard
 ```bash
