@@ -6,6 +6,14 @@ class AdmissionAgent:
     def __init__(self, vector_store):
         self.vector_store = vector_store
 
+        self.llm = Ollama(
+            model="llama3",
+            temperature=0.5,
+            top_p=0.5,
+            repeat_penalty=1.1,
+            num_ctx=2048
+        )
+
         self.admission_data = {
             "deadlines": "2025-01-15",
             "requirements": "GPA 3.0+, CS prerequisites",
@@ -23,7 +31,6 @@ class AdmissionAgent:
             "website": "https://www.concordia.ca/academics/undergraduate/computer-science.html"
         }
 
-        self.llm = Ollama(model="llama3")
         self.prompt = ChatPromptTemplate.from_template(
             """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are an assistant specialized in Concordia University's Computer Science admissions. Provide clear, specific, and helpful answers.
@@ -35,12 +42,19 @@ Question: {question}
 
         self.chain = (
             {
-                "context": lambda x: self.vector_store.get_context(x["user_id"]),
+                "context": lambda x: x["context"],
                 "question": RunnablePassthrough()
             }
             | self.prompt
             | self.llm
         )
+
+    def _build_context(self, user_id):
+        chat_log = self.vector_store.memory_log.get(user_id, [])
+        return "\n".join([
+            f"{entry['role'].capitalize()}: {entry['content']}"
+            for entry in chat_log if entry['role'] in ("user", "assistant")
+        ])
 
     def handle_query(self, query, user_id):
         query_lower = query.lower()
@@ -50,14 +64,28 @@ Question: {question}
                 if key in query_lower:
                     return self.concordia_cs_data[key]
 
-            response = self.chain.invoke({"question": query, "user_id": user_id})
-            self.vector_store.store_interaction(user_id, query, response)
-            return response
-
         for key in self.admission_data:
             if key in query_lower:
                 return self.admission_data[key]
 
-        response = self.chain.invoke({"question": query, "user_id": user_id})
+        context = self._build_context(user_id)
+        response = self.chain.invoke({
+            "question": query,
+            "user_id": user_id,
+            "context": context
+        })
+
         self.vector_store.store_interaction(user_id, query, response)
         return response
+
+    def generate_candidates(self, query: str, user_id: str, n=1):
+        context = self._build_context(user_id)
+        responses = []
+        for _ in range(n):
+            response = self.chain.invoke({
+                "question": query,
+                "user_id": user_id,
+                "context": context
+            })
+            responses.append(response)
+        return responses

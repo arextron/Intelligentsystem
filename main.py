@@ -12,6 +12,8 @@ import csv
 import os
 from typing import Optional
 
+from utils.reward_model import RewardModel
+
 app = FastAPI()
 
 app.add_middleware(
@@ -28,6 +30,8 @@ try:
     general_agent = GeneralAgent(vector_store, wikipedia_api)
     admission_agent = AdmissionAgent(vector_store)
     ai_agent = AIAgent(vector_store, wikipedia_api)
+    reward_model = RewardModel()
+    reward_model.load()
 except Exception as e:
     print(f"Initialization error: {e}")
     raise
@@ -46,8 +50,8 @@ class Feedback(BaseModel):
     rating: int  # 1 to 5
 
 # === Intent Detection ===
-AI_KEYWORDS = {"ai", "ml", "machine learning", "deep learning", "dl", "nlp", "chatbot", "transformer"}
-ADMISSION_KEYWORDS = {"admission", "concordia", "computer science", "cs", "apply", "gpa", "deadline"}
+AI_KEYWORDS = {"ai", "ml", "machine learning", "deep learning", "dl", "nlp", "chatbot", "transformer","natural language processing", "artificial intelligence", "model", "algorithm", "data", "training", "inference","research", "paper", "study", "experiment", "results", "evaluation", "accuracy", "performance", "benchmark", "dataset", "feature", "label", "training set", "test set", "validation set", "hyperparameter", "tuning"}
+ADMISSION_KEYWORDS = {"admission", "concordia", "computer science", "cs", "apply", "gpa", "deadline"," requirements", "tuition", "program", "application", "acceptance", "status", "documents", "transcripts", "english proficiency", "ielts", "toefl", "gre", "sat", "act", "interview", "offer letter"," acceptance letter", "deferral", "transfer", "international student", "visa", "scholarship", "financial aid", "tuition fee", "cost of living", "housing", "accommodation", "campus life", "student services", "orientation", "registration", "enrollment", "course load", "academic calendar"}
 
 def get_intent_agent(user_input: str):
     tokens = set(user_input.lower().split())
@@ -57,7 +61,7 @@ def get_intent_agent(user_input: str):
         return "admission"
     return "general"
 
-def is_followup(current_query: str, last_query: str, threshold: float = 0.4) -> bool:
+def is_followup(current_query: str, last_query: str, threshold: float = 0.2) -> bool:
     if not last_query:
         return False
     ratio = difflib.SequenceMatcher(None, current_query.lower(), last_query.lower()).ratio()
@@ -70,7 +74,6 @@ async def chat(request: ChatRequest):
         user_id = request.user_id
         user_input = request.user_input.strip().lower()
 
-        # Handle greetings and farewells
         greetings = {"hi", "hello", "hey"}
         farewells = {"bye", "goodbye", "see you"}
 
@@ -88,7 +91,6 @@ async def chat(request: ChatRequest):
                 "contextual": False
             }
 
-        # Context detection
         history = vector_store.memory_log.get(user_id, [])
         last_query = ""
         for h in reversed(history):
@@ -99,13 +101,19 @@ async def chat(request: ChatRequest):
         is_contextual = is_followup(user_input, last_query)
         agent_type = get_intent_agent(user_input)
 
-        # Route to agent
         if agent_type == "admission":
-            response = admission_agent.handle_query(user_input, user_id)
+            candidates = admission_agent.generate_candidates(user_input, user_id, n=2)
         elif agent_type == "ai":
-            response = ai_agent.handle_query(user_input, user_id)
+            candidates = ai_agent.generate_candidates(user_input, user_id, n=2)
         else:
-            response = general_agent.handle_query(user_input, user_id)
+            candidates = general_agent.generate_candidates(user_input, user_id, n=2)
+
+        if hasattr(reward_model, 'model'):
+            response = max(candidates, key=lambda r: reward_model.predict(user_input, r))
+        else:
+            response = candidates[0]
+        
+        vector_store.store_interaction(user_id, user_input, response)
 
         return {
             "response": response,
